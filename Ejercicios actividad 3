@@ -1,0 +1,131 @@
+# EJERCICIO 8.2
+
+import ipywidgets as widgets
+from IPython.display import display, clear_output
+import math
+
+# Clase Notas (Sin cambios)
+class Notas:
+    def __init__(self):
+        self.listaNotas = [0.0] * 5
+
+    def calcularPromedio(self):
+        suma = 0.0
+        for i in range(len(self.listaNotas)):
+            suma += self.listaNotas[i]
+        return suma / len(self.listaNotas)
+
+    def calcularDesviacion(self):
+        prom = self.calcularPromedio()
+        suma = 0.0
+        for i in range(len(self.listaNotas)):
+            suma += math.pow(self.listaNotas[i] - prom, 2)
+        return math.sqrt(suma / len(self.listaNotas))
+
+    def calcularMenor(self):
+        menor = self.listaNotas[0]
+        for i in range(len(self.listaNotas)):
+            if self.listaNotas[i] < menor:
+                menor = self.listaNotas[i]
+        return menor
+
+    def calcularMayor(self):
+        mayor = self.listaNotas[0]
+        for i in range(len(self.listaNotas)):
+            if self.listaNotas[i] > mayor:
+                mayor = self.listaNotas[i]
+        return mayor
+
+# Clase VentanaPrincipal (ATRIBUTOS IDÉNTICOS AL DIAGRAMA ORIGINAL)
+class VentanaPrincipal:
+    def __init__(self):
+        self.contenedor = None
+        self.nota1 = self.nota2 = self.nota3 = self.nota4 = self.nota5 = None
+        self.promedio = self.desviacion = self.mayor = self.menor = None
+        self.campoNota1 = self.campoNota2 = self.campoNota3 = self.campoNota4 = self.campoNota5 = None
+        self.calcular = self.limpiar = None
+
+        # Objeto especial de Colab para limpiar mensajes (no se pone en el diagrama)
+        self.salida_error = widgets.Output()
+
+        self.inicio()
+
+    def inicio(self):
+        # Componentes de la interfaz
+        self.nota1 = widgets.Label(value="Nota 1:")
+        self.campoNota1 = widgets.FloatText()
+        self.nota2 = widgets.Label(value="Nota 2:")
+        self.campoNota2 = widgets.FloatText()
+        self.nota3 = widgets.Label(value="Nota 3:")
+        self.campoNota3 = widgets.FloatText()
+        self.nota4 = widgets.Label(value="Nota 4:")
+        self.campoNota4 = widgets.FloatText()
+        self.nota5 = widgets.Label(value="Nota 5:")
+        self.campoNota5 = widgets.FloatText()
+
+        self.calcular = widgets.Button(description="Calcular")
+        self.limpiar = widgets.Button(description="Limpiar")
+
+        self.promedio = widgets.Label(value="Promedio = ")
+        self.desviacion = widgets.Label(value="Desviación estándar = ")
+        self.mayor = widgets.Label(value="Valor mayor = ")
+        self.menor = widgets.Label(value="Valor menor = ")
+
+        self.calcular.on_click(self.actionPerformed)
+        self.limpiar.on_click(self.actionPerformed)
+
+        # Organización visual
+        self.contenedor = widgets.VBox([
+            self.nota1, self.campoNota1,
+            self.nota2, self.campoNota2,
+            self.nota3, self.campoNota3,
+            self.nota4, self.campoNota4,
+            self.nota5, self.campoNota5,
+            widgets.HBox([self.calcular, self.limpiar]),
+            self.salida_error, # Espacio invisible para errores
+            self.promedio, self.desviacion, self.mayor, self.menor
+        ])
+
+    def setVisible(self, visibilidad):
+        if visibilidad:
+            display(self.contenedor)
+
+    def actionPerformed(self, evento):
+        if evento.description == "Calcular":
+            with self.salida_error:
+                clear_output() # Limpia errores anteriores
+
+                # Obtener valores
+                valores = [float(self.campoNota1.value), float(self.campoNota2.value),
+                           float(self.campoNota3.value), float(self.campoNota4.value),
+                           float(self.campoNota5.value)]
+
+                # Validar sin componentes nuevos
+                if any(v < 0 or v > 5 for v in valores):
+                    print("❌ Error: Ingrese valores entre 0 y 5")
+                    return # Detiene la ejecución aquí
+
+                notas = Notas()
+                for i in range(5):
+                    notas.listaNotas[i] = valores[i]
+
+                self.promedio.value = "Promedio = {:.2f}".format(notas.calcularPromedio())
+                self.desviacion.value = "Desviación estándar = {:.2f}".format(notas.calcularDesviacion())
+                self.mayor.value = "Valor mayor = " + str(notas.calcularMayor())
+                self.menor.value = "Valor menor = " + str(notas.calcularMenor())
+
+        elif evento.description == "Limpiar":
+            with self.salida_error:
+                clear_output()
+            self.campoNota1.value = self.campoNota2.value = self.campoNota3.value = 0
+            self.campoNota4.value = self.campoNota5.value = 0
+
+# Clase Principal
+class Principal:
+    @staticmethod
+    def main():
+        miVentanaPrincipal = VentanaPrincipal()
+        miVentanaPrincipal.setVisible(True)
+
+if __name__ == "__main__":
+    Principal.main()
