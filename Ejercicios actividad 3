@@ -132,4 +132,132 @@ if __name__ == "__main__":
 
 # EJERCICIO 8.3
 
+import ipywidgets as widgets
+from IPython.display import display, clear_output
+import math
+
+# =================================================================
+# CLASES DE LÓGICA (MODELO) - SIN CAMBIOS PARA MANTENER EL DIAGRAMA
+# =================================================================
+
+class FiguraGeometrica:
+    def __init__(self):
+        self.volumen = 0.0
+        self.superficie = 0.0
+    def setVolumen(self, volumen): self.volumen = volumen
+    def setSuperficie(self, superficie): self.superficie = superficie
+    def getVolumen(self): return self.volumen
+    def getSuperficie(self): return self.superficie
+
+class Cilindro(FiguraGeometrica):
+    def __init__(self, radio, altura):
+        super().__init__()
+        self.radio, self.altura = radio, altura
+        self.setVolumen(self.calcularVolumen())
+        self.setSuperficie(self.calcularSuperficie())
+    def calcularVolumen(self): return math.pi * self.altura * math.pow(self.radio, 2.0)
+    def calcularSuperficie(self):
+        return (2.0 * math.pi * self.radio * self.altura) + (2.0 * math.pi * math.pow(self.radio, 2.0))
+
+class Esfera(FiguraGeometrica):
+    def __init__(self, radio):
+        super().__init__()
+        self.radio = radio
+        self.setVolumen(self.calcularVolumen())
+        self.setSuperficie(self.calcularSuperficie())
+    def calcularVolumen(self): return 1.333 * math.pi * math.pow(self.radio, 3.0)
+    def calcularSuperficie(self): return 4.0 * math.pi * math.pow(self.radio, 2.0)
+
+class Piramide(FiguraGeometrica):
+    def __init__(self, base, altura, apotema):
+        super().__init__()
+        self.base, self.altura, self.apotema = base, altura, apotema
+        self.setVolumen(self.calcularVolumen())
+        self.setSuperficie(self.calcularSuperficie())
+    def calcularVolumen(self): return (math.pow(self.base, 2.0) * self.altura) / 3.0
+    def calcularSuperficie(self): return math.pow(self.base, 2.0) + (2.0 * self.base * self.apotema)
+
+# =================================================================
+# CLASES DE INTERFAZ (VISTA) - AJUSTADAS PARA VISTA SIMULTÁNEA
+# =================================================================
+
+class VentanaCilindro:
+    def __init__(self):
+        self.inicio()
+    def inicio(self):
+        self.campoRadio = widgets.FloatText(description="Radio:", value=None)
+        self.campoAltura = widgets.FloatText(description="Altura:", value=None)
+        self.calcular = widgets.Button(description="Calcular")
+        self.volumen = widgets.Label(value="Volumen (cm3):")
+        self.superficie = widgets.Label(value="Superficie (cm2):")
+        self.calcular.on_click(self.actionPerformed)
+        self.contenedor = widgets.VBox([widgets.HTML("<b>Cilindro</b>"), self.campoRadio, self.campoAltura, self.calcular, self.volumen, self.superficie])
+    def actionPerformed(self, _):
+        try:
+            cil = Cilindro(float(self.campoRadio.value), float(self.campoAltura.value))
+            self.volumen.value, self.superficie.value = f"Volumen (cm3): {cil.getVolumen():.2f}", f"Superficie (cm2): {cil.getSuperficie():.2f}"
+        except: print("Error en datos")
+
+class VentanaEsfera:
+    def __init__(self):
+        self.inicio()
+    def inicio(self):
+        self.campoRadio = widgets.FloatText(description="Radio:", value=None)
+        self.calcular = widgets.Button(description="Calcular")
+        self.volumen = widgets.Label(value="Volumen (cm3):")
+        self.superficie = widgets.Label(value="Superficie (cm2):")
+        self.calcular.on_click(self.actionPerformed)
+        self.contenedor = widgets.VBox([widgets.HTML("<b>Esfera</b>"), self.campoRadio, self.calcular, self.volumen, self.superficie])
+    def actionPerformed(self, _):
+        try:
+            esf = Esfera(float(self.campoRadio.value))
+            self.volumen.value, self.superficie.value = f"Volumen (cm3): {esf.getVolumen():.2f}", f"Superficie (cm2): {esf.getSuperficie():.2f}"
+        except: print("Error en datos")
+
+class VentanaPiramide:
+    def __init__(self):
+        self.inicio()
+    def inicio(self):
+        self.campoBase = widgets.FloatText(description="Base:", value=None)
+        self.campoAltura = widgets.FloatText(description="Altura:", value=None)
+        self.campoApotema = widgets.FloatText(description="Apotema:", value=None)
+        self.calcular = widgets.Button(description="Calcular")
+        self.volumen = widgets.Label(value="Volumen (cm3):")
+        self.superficie = widgets.Label(value="Superficie (cm2):")
+        self.calcular.on_click(self.actionPerformed)
+        self.contenedor = widgets.VBox([widgets.HTML("<b>Pirámide</b>"), self.campoBase, self.campoAltura, self.campoApotema, self.calcular, self.volumen, self.superficie])
+    def actionPerformed(self, _):
+        try:
+            pir = Piramide(float(self.campoBase.value), float(self.campoAltura.value), float(self.campoApotema.value))
+            self.volumen.value, self.superficie.value = f"Volumen (cm3): {pir.getVolumen():.2f}", f"Superficie (cm2): {pir.getSuperficie():.2f}"
+        except: print("Error en datos")
+
+class VentanaPrincipal:
+    def __init__(self):
+        self.zona_dinamica = widgets.Output() # Aquí se mostrarán las figuras
+        self.inicio()
+    def inicio(self):
+        self.cilindro = widgets.Button(description="Cilindro")
+        self.esfera = widgets.Button(description="Esfera")
+        self.piramide = widgets.Button(description="Pirámide")
+        self.cilindro.on_click(self.actionPerformed)
+        self.esfera.on_click(self.actionPerformed)
+        self.piramide.on_click(self.actionPerformed)
+        # Menú superior siempre visible
+        self.menu = widgets.HBox([self.cilindro, self.esfera, self.piramide])
+        self.contenedor = widgets.VBox([widgets.HTML("<h3>Seleccione una figura:</h3>"), self.menu, self.zona_dinamica])
+    def actionPerformed(self, evento):
+        with self.zona_dinamica:
+            clear_output() # Solo limpia la zona de la figura, no los botones
+            if evento.description == "Cilindro": display(VentanaCilindro().contenedor)
+            elif evento.description == "Esfera": display(VentanaEsfera().contenedor)
+            elif evento.description == "Pirámide": display(VentanaPiramide().contenedor)
+
+class Principal:
+    @staticmethod
+    def main():
+        display(VentanaPrincipal().contenedor)
+
+if __name__ == "__main__":
+    Principal.main()
 
