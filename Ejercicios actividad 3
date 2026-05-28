@@ -136,10 +136,6 @@ import ipywidgets as widgets
 from IPython.display import display, clear_output
 import math
 
-# =================================================================
-# CLASES DE LÓGICA (MODELO) - SIN CAMBIOS PARA MANTENER EL DIAGRAMA
-# =================================================================
-
 class FiguraGeometrica:
     def __init__(self):
         self.volumen = 0.0
@@ -176,10 +172,6 @@ class Piramide(FiguraGeometrica):
         self.setSuperficie(self.calcularSuperficie())
     def calcularVolumen(self): return (math.pow(self.base, 2.0) * self.altura) / 3.0
     def calcularSuperficie(self): return math.pow(self.base, 2.0) + (2.0 * self.base * self.apotema)
-
-# =================================================================
-# CLASES DE INTERFAZ (VISTA) - AJUSTADAS PARA VISTA SIMULTÁNEA
-# =================================================================
 
 class VentanaCilindro:
     def __init__(self):
@@ -234,7 +226,7 @@ class VentanaPiramide:
 
 class VentanaPrincipal:
     def __init__(self):
-        self.zona_dinamica = widgets.Output() # Aquí se mostrarán las figuras
+        self.zona_dinamica = widgets.Output()
         self.inicio()
     def inicio(self):
         self.cilindro = widgets.Button(description="Cilindro")
@@ -243,12 +235,12 @@ class VentanaPrincipal:
         self.cilindro.on_click(self.actionPerformed)
         self.esfera.on_click(self.actionPerformed)
         self.piramide.on_click(self.actionPerformed)
-        # Menú superior siempre visible
+
         self.menu = widgets.HBox([self.cilindro, self.esfera, self.piramide])
         self.contenedor = widgets.VBox([widgets.HTML("<h3>Seleccione una figura:</h3>"), self.menu, self.zona_dinamica])
     def actionPerformed(self, evento):
         with self.zona_dinamica:
-            clear_output() # Solo limpia la zona de la figura, no los botones
+            clear_output() 
             if evento.description == "Cilindro": display(VentanaCilindro().contenedor)
             elif evento.description == "Esfera": display(VentanaEsfera().contenedor)
             elif evento.description == "Pirámide": display(VentanaPiramide().contenedor)
@@ -260,4 +252,3 @@ class Principal:
 
 if __name__ == "__main__":
     Principal.main()
-
