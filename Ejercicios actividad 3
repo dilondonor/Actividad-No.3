@@ -4,7 +4,7 @@ import ipywidgets as widgets
 from IPython.display import display, clear_output
 import math
 
-# Clase Notas (Sin cambios)
+# Clase Notas
 class Notas:
     def __init__(self):
         self.listaNotas = [0.0] * 5
@@ -36,7 +36,7 @@ class Notas:
                 mayor = self.listaNotas[i]
         return mayor
 
-# Clase VentanaPrincipal (ATRIBUTOS IDÉNTICOS AL DIAGRAMA ORIGINAL)
+# Clase VentanaPrincipal
 class VentanaPrincipal:
     def __init__(self):
         self.contenedor = None
@@ -45,7 +45,6 @@ class VentanaPrincipal:
         self.campoNota1 = self.campoNota2 = self.campoNota3 = self.campoNota4 = self.campoNota5 = None
         self.calcular = self.limpiar = None
 
-        # Objeto especial de Colab para limpiar mensajes (no se pone en el diagrama)
         self.salida_error = widgets.Output()
 
         self.inicio()
@@ -82,7 +81,7 @@ class VentanaPrincipal:
             self.nota4, self.campoNota4,
             self.nota5, self.campoNota5,
             widgets.HBox([self.calcular, self.limpiar]),
-            self.salida_error, # Espacio invisible para errores
+            self.salida_error,
             self.promedio, self.desviacion, self.mayor, self.menor
         ])
 
@@ -93,17 +92,16 @@ class VentanaPrincipal:
     def actionPerformed(self, evento):
         if evento.description == "Calcular":
             with self.salida_error:
-                clear_output() # Limpia errores anteriores
+                clear_output()
 
                 # Obtener valores
                 valores = [float(self.campoNota1.value), float(self.campoNota2.value),
                            float(self.campoNota3.value), float(self.campoNota4.value),
                            float(self.campoNota5.value)]
 
-                # Validar sin componentes nuevos
                 if any(v < 0 or v > 5 for v in valores):
                     print("❌ Error: Ingrese valores entre 0 y 5")
-                    return # Detiene la ejecución aquí
+                    return
 
                 notas = Notas()
                 for i in range(5):
@@ -129,3 +127,9 @@ class Principal:
 
 if __name__ == "__main__":
     Principal.main()
+
+##############################################################################################################################################################################################################
+
+# EJERCICIO 8.3
+
+
